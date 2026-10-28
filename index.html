@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A simple daily expense tracker to record and manage personal expenses.">
+  <meta name="theme-color" content="#2563eb">
+  <title>Daily Expense Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#" aria-label="Daily Expense Tracker home">
+        <span class="brand-icon" aria-hidden="true">₹</span>
+        <span>Daily Expense Tracker</span>
+      </a>
+      <span class="local-badge"><span class="status-dot"></span> Saved on this device</span>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <section class="page-intro">
+      <div>
+        <p class="eyebrow">PERSONAL FINANCE</p>
+        <h1>Keep track of every rupee.</h1>
+        <p class="subtitle">Record your daily spending and see where your money goes.</p>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="Expense summary">
+      <article class="summary-card today-card">
+        <div class="summary-top"><span>Today's expenses</span><span class="summary-icon" aria-hidden="true">↗</span></div>
+        <p class="summary-value" id="todayTotal">₹0.00</p>
+        <p class="summary-note" id="todayDateLabel">For today</p>
+      </article>
+      <article class="summary-card all-card">
+        <div class="summary-top"><span>All recorded expenses</span><span class="summary-icon" aria-hidden="true">₹</span></div>
+        <p class="summary-value" id="allTotal">₹0.00</p>
+        <p class="summary-note" id="entryCount">0 entries</p>
+      </article>
+    </section>
+
+    <section class="panel entry-panel" aria-labelledby="formHeading">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">NEW RECORD</p>
+          <h2 id="formHeading">Add an expense</h2>
+        </div>
+        <span class="heading-mark" aria-hidden="true">＋</span>
+      </div>
+
+      <form id="expenseForm">
+        <div class="form-grid">
+          <label class="field">
+            <span>Date <span class="required">*</span></span>
+            <input id="expenseDate" name="date" type="date" required>
+          </label>
+          <label class="field">
+            <span>Amount (₹) <span class="required">*</span></span>
+            <input id="expenseAmount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="e.g. 250.00" required>
+          </label>
+          <label class="field">
+            <span>Category <span class="required">*</span></span>
+            <select id="expenseCategory" name="category" required>
+              <option value="Food">Food & groceries</option>
+              <option value="Transport">Transport</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Bills">Bills & utilities</option>
+              <option value="Health">Health</option>
+              <option value="Home">Home & rent</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Education">Education</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Description <span class="optional">(optional)</span></span>
+            <input id="expenseDescription" name="description" type="text" maxlength="120" placeholder="e.g. Lunch, bus fare, groceries">
+          </label>
+        </div>
+        <div class="form-actions">
+          <p class="form-hint"><span class="required">*</span> Required fields</p>
+          <div class="action-buttons">
+            <button type="button" class="button button-secondary hidden" id="cancelEditButton">Cancel edit</button>
+            <button type="submit" class="button button-primary" id="submitButton"><span aria-hidden="true">＋</span> Add expense</button>
+          </div>
+        </div>
+        <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="panel history-panel" aria-labelledby="historyHeading">
+      <div class="panel-heading history-heading">
+        <div>
+          <p class="eyebrow">YOUR RECORDS</p>
+          <h2 id="historyHeading">Expense history</h2>
+        </div>
+        <button type="button" class="button button-secondary" id="exportButton">↓ Export CSV</button>
+      </div>
+
+      <div class="filters">
+        <label class="field filter-search">
+          <span class="visually-hidden">Search expenses</span>
+          <span class="input-with-icon"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Search descriptions or categories"></span>
+        </label>
+        <label class="field filter-date">
+          <span class="visually-hidden">Filter by date</span>
+          <input id="filterDate" type="date" aria-label="Filter by date">
+        </label>
+        <label class="field filter-category">
+          <span class="visually-hidden">Filter by category</span>
+          <select id="filterCategory" aria-label="Filter by category">
+            <option value="">All categories</option>
+            <option value="Food">Food & groceries</option>
+            <option value="Transport">Transport</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Bills">Bills & utilities</option>
+            <option value="Health">Health</option>
+            <option value="Home">Home & rent</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Education">Education</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+        <button type="button" class="button button-text" id="clearFiltersButton">Clear filters</button>
+      </div>
+
+      <div class="table-summary">
+        <span id="visibleCount">0 expenses</span>
+        <span>Filtered total: <strong id="filteredTotal">₹0.00</strong></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Expense</th>
+              <th scope="col">Category</th>
+              <th scope="col" class="amount-column">Amount</th>
+              <th scope="col" class="actions-column">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="expenseTableBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state">
+          <span class="empty-icon" aria-hidden="true">▤</span>
+          <h3>No expenses yet</h3>
+          <p>Add your first expense using the form above.</p>
+        </div>
+      </div>
+      <p class="privacy-note">Your records are stored in this browser on this device. They are not uploaded to GitHub or shared with other visitors.</p>
+    </section>
+
+    <footer class="site-footer">
+      <span>Daily Expense Tracker</span>
+      <span>Simple spending records, one day at a time.</span>
+    </footer>
+  </main>
+
+  <dialog id="deleteDialog" class="confirm-dialog" aria-labelledby="deleteDialogTitle">
+    <form method="dialog">
+      <h2 id="deleteDialogTitle">Delete this expense?</h2>
+      <p>This action cannot be undone. If you need a record, export your expenses first.</p>
+      <div class="dialog-actions">
+        <button class="button button-secondary" value="cancel">Cancel</button>
+        <button class="button button-danger" id="confirmDeleteButton" value="delete">Delete expense</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
